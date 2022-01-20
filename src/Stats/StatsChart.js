@@ -61,6 +61,7 @@ class StatsChart extends Component {
     }
     console.log("Success",this.props.tokenConfig,"TOKEN",this.props.selectedToken,"CHARTMODE",this.props.chartMode,this.props.apiResults,this.props.apiResults_aa)
     const maxGridLines = 4;
+    const tranchesConfig = this.functionsUtil.getGlobalConfig(['tranches']);
     const apiResults = this.props.apiResults;
     const apiResults_aa=this.props.apiResults_aa;
     const apiResults_bb=this.props.apiResults_bb;
