@@ -67,13 +67,13 @@ class TrancheChart extends Component {
         const apiResults_bb=this.props.apiResults_bb;
         const apiResults_unfiltered = this.props.apiResults_unfiltered;
         const totalItems = apiResults_aa ? apiResults_aa.length : apiResults.length;
-        const protocols = Object.assign([],this.props.tokenConfig.protocols);
+        //const protocols = Object.assign([],this.props.tokenConfig.protocols);
         // const compoundProtocol = this.props.tokenConfig.protocols.find( p => (p.name === 'compound'));
 
-        const versionInfo = globalConfigs.stats.versions[this.props.idleVersion];
+        //const versionInfo = globalConfigs.stats.versions[this.props.idleVersion];
 
-        let keys = {};
-        let tempData = {};
+        //let keys = {};
+        //let tempData = {};
         let gridYStep = 0;
         let itemIndex = 0;
         let daysCount = 0;
@@ -84,7 +84,7 @@ class TrancheChart extends Component {
         let maxChartValue = 0;
         let axisBottomIndex = 0;
         let daysFrequency = null;
-        let idleChartData = null;
+        //let idleChartData = null;
         let firstIdleBlock = null;
         let axisBottomMaxValues = 12;
 
