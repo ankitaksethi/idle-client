@@ -14,6 +14,7 @@ import RoundIconButton from '../RoundIconButton/RoundIconButton';
 import VariationNumber from '../VariationNumber/VariationNumber';
 import AllocationChart from '../AllocationChart/AllocationChart';
 import DateRangeModal from '../utilities/components/DateRangeModal';
+import TrancheField from '../TrancheField/TrancheField';
 import { Flex, Text, Heading, Box, Icon } from 'rimble-ui';
 class StatsTranche extends Component {
 
@@ -46,7 +47,10 @@ class StatsTranche extends Component {
     apiResults_unfiltered:null,
     apiResults_unfiltered_aa:null,
     apiResults_unfiltered_bb:null,
-    dateRangeModalOpened:false
+    dateRangeModalOpened:false,
+    selectedTranche:null,
+    availableTranches:null,
+    selectedTrancheOption:null,
   };
 
   quickSelections = {
@@ -111,6 +115,17 @@ class StatsTranche extends Component {
       return false;
     }
 
+    const availableTranches = Object.values(this.functionsUtil.getGlobalConfig(['tranches'])).map( trancheInfo => ({
+      value:trancheInfo.type,
+      icon:trancheInfo.image,
+      label:trancheInfo.name,
+      tranche:trancheInfo.type,
+      trancheConfig:this.props.tokenConfig[trancheInfo.type]
+    }));
+    const selectedTrancheOption = availableTranches.find( trancheInfo => trancheInfo.value === this.props.selectedTranche );
+    const selectedTranche = selectedTrancheOption.value;
+    const trancheDetails = this.functionsUtil.getGlobalConfig(['tranches',this.props.selectedTranche]);
+
     const newState = {};
     const { match: { params } } = this.props;
 
@@ -123,6 +138,7 @@ class StatsTranche extends Component {
     } else {
       newState.selectedToken = this.props.selectedToken.toUpperCase();
     }
+
 
     newState.tokenConfig = this.props.availableTokens[newState.selectedToken];
     newState.minStartTime = moment('2021-12-01','YYYY-MM-DD');
@@ -245,6 +261,7 @@ class StatsTranche extends Component {
       return false;
     }
 
+
     const startTimestamp = this.state.minDate ? parseInt(this.functionsUtil.strToMoment(this.functionsUtil.strToMoment(this.state.minDate).format('DD/MM/YYYY 00:00:00'),'DD/MM/YYYY HH:mm:ss')._d.getTime()/1000) : null;
     const endTimestamp = this.state.maxDate ? parseInt(this.functionsUtil.strToMoment(this.functionsUtil.strToMoment(this.state.maxDate).format('DD/MM/YYYY 23:59:59'),'DD/MM/YYYY HH:mm:ss')._d.getTime()/1000) : null;
 
@@ -353,7 +370,10 @@ class StatsTranche extends Component {
       apiResults_aa,
       apiResults_bb,
       apiResults_unfiltered_aa,
-      apiResults_unfiltered_bb
+      apiResults_unfiltered_bb,
+      selectedTranche,
+      availableTranches,
+      selectedTrancheOption
     });
   }
 
@@ -378,7 +398,13 @@ class StatsTranche extends Component {
       carouselOffsetLeft
     });
   }
-
+  selectTranche(trancheType){
+    // console.log('selectTranche',trancheType);
+    const trancheDetails = this.functionsUtil.getGlobalConfig(['tranches',trancheType]);
+    if (trancheDetails){
+      this.props.selectTrancheType(trancheDetails.route);
+    }
+  }
 
 render() {
   const networkId = this.functionsUtil.getRequiredNetworkId();
@@ -408,6 +434,74 @@ render() {
 
   let performanceTooltip = null;
 
+  const CustomOptionValue = props => {
+    const selectedOption = props.options.find( option => option.value === props.value );
+    if (!selectedOption){
+      return null;
+    }
+
+    return (
+        <Flex
+            width={1}
+            alignItems={'center'}
+            flexDirection={'row'}
+            justifyContent={'space-between'}
+        >
+          <Flex
+              alignItems={'center'}
+          >
+            <Image
+                mr={2}
+                src={selectedOption.icon}
+                size={this.props.isMobile ? '1.6em' : '1.8em'}
+            />
+            <Text
+                fontWeight={3}
+            >
+              {props.label}
+            </Text>
+          </Flex>
+        </Flex>
+    );
+  }
+
+  const CustomValueContainer = props => {
+    const selectProps = props.selectProps.options.find( option => option.value === props.selectProps.value.value );
+    // console.log('CustomValueContainer',props.selectProps.options,props.selectProps.value,selectProps);
+    if (!selectProps){
+      return null;
+    }
+    return (
+        <Flex
+            style={{
+              flex:'1'
+            }}
+            justifyContent={'space-between'}
+            {...props.innerProps}
+        >
+          <Flex
+              p={0}
+              width={1}
+              {...props.innerProps}
+              alignItems={'center'}
+              flexDirection={'row'}
+              style={{cursor:'pointer'}}
+              justifyContent={'flex-start'}
+          >
+            <Image
+                mr={2}
+                src={selectProps.icon}
+                size={this.props.isMobile ? '1.6em' : '1.8em'}
+            />
+            <Text
+                fontWeight={3}
+            >
+              {selectProps.label}
+            </Text>
+          </Flex>
+        </Flex>
+    );
+  }
   return (
       <Flex
         p={0}
@@ -438,6 +532,29 @@ render() {
               flexDirection={['column','row']}
               justifyContent={['center','space-between']}
             >
+              //generic selector via tranche deposit redeem
+              !this.state.availableTranches ?{
+              <Box
+                  width={1}
+              >
+                <Text
+                    mb={1}
+                >
+                  Select Tranche:
+                </Text>
+                <GenericSelector
+                    {...this.props}
+                    name={'tranches'}
+                    isSearchable={false}
+                    CustomOptionValue={CustomOptionValue}
+                    options={this.state.availableTranches}
+                    onChange={this.selectTranche.bind(this)}
+                    CustomValueContainer={CustomValueContainer}
+                    defaultValue={this.state.selectedTrancheOption}
+                />
+              </Box>
+
+            }
               <Flex
                 width={[1,0.26]}
                 flexDirection={'column'}
@@ -457,7 +574,8 @@ render() {
                   */
                 }
               </Flex>
-              <Flex
+              {
+                /*<Flex
                   mt={[3,0]}
                   width={[1,0.3]}
                   flexDirection={'column'}
@@ -469,7 +587,8 @@ render() {
                     }}
                     {...this.props}
                 />
-              </Flex>
+              </Flex> */
+              }
               <Flex
                 mt={[3,0]}
                 width={[1,0.39]}
