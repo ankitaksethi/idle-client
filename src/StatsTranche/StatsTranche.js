@@ -541,9 +541,9 @@ render() {
                 }
               </Flex>
               <Flex
-                mt={[3,0]}
-                width={[1,0.3]}
-                flexDirection={'column'}
+                  mt={[3,0]}
+                  width={[1,0.3]}
+                  flexDirection={'column'}
               >
                 <TrancheSelector
                   innerProps={{
