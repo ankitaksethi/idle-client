@@ -1,4 +1,5 @@
 import moment from 'moment';
+import StatsChart from '../Stats/StatsChart';
 import React, { Component } from 'react';
 import Rebalance from '../Rebalance/Rebalance';
 import StatsCard from '../StatsCard/StatsCard';
@@ -14,20 +15,13 @@ import VariationNumber from '../VariationNumber/VariationNumber';
 import AllocationChart from '../AllocationChart/AllocationChart';
 import DateRangeModal from '../utilities/components/DateRangeModal';
 import { Flex, Text, Heading, Box, Icon } from 'rimble-ui';
-import TrancheChart from '../StatsTranche/TrancheChart';
-
 class StatsTranche extends Component {
 
   state = {
     aum:null,
-    aum_aa:null,
-    aum_bb:null,
-    apr_aa:null,
-    apr_aa:null,
-    apr_bb:null,
+    apr:null,
     days:'-',
-    delta_aa:null,
-    delta_bb:null,
+    delta:null,
     earning:null,
     minDate:null,
     maxDate:null,
@@ -52,7 +46,7 @@ class StatsTranche extends Component {
     apiResults_unfiltered:null,
     apiResults_unfiltered_aa:null,
     apiResults_unfiltered_bb:null,
-    dateRangeModalOpened:false,
+    dateRangeModalOpened:false
   };
 
   quickSelections = {
@@ -227,7 +221,6 @@ class StatsTranche extends Component {
     const dateChanged = prevState.startTimestamp !== this.state.startTimestamp || prevState.endTimestamp !== this.state.endTimestamp;
     const mobileChanged = prevProps.isMobile !== this.props.isMobile;
 
-
     if (mobileChanged){
       this.loadCarousel();
     }
@@ -247,7 +240,6 @@ class StatsTranche extends Component {
 
   loadApiData = async () => {
 
-
     if (!this.props.selectedToken || !this.props.selectedProtocol || !this.props.selectedStrategy || !this.props.tokenConfig){
       console.log("FAILED HERE")
       return false;
@@ -261,66 +253,35 @@ class StatsTranche extends Component {
 
     const apiResults_aa = this.filterTokenData(apiResults_unfiltered_aa);
     const apiResults_bb = this.filterTokenData(apiResults_unfiltered_bb);
-
-    console.log("apiResults_aa",apiResults_aa)
-    console.log("apiResults_aa",apiResults_bb)
-
     if (!apiResults_aa || !apiResults_unfiltered_aa || !apiResults_aa.length || !apiResults_unfiltered_aa.length || !apiResults_bb || !apiResults_unfiltered_bb || !apiResults_bb.length || !apiResults_unfiltered_bb.length){
-      console.log("No results")
       return false;
     }
-    const firstResult_aa = apiResults_aa[0];
-    const lastResult_aa= Object.values(apiResults_aa).pop();
 
-    const firstResult_bb = apiResults_bb[0];
-    const lastResult_bb= Object.values(apiResults_bb).pop();
+    /*
+    const firstResult = apiResults[0];
+    const lastResult = Object.values(apiResults).pop();
 
     window.moment = moment;
 
-    let days = (lastResult_aa.timeStamp-firstResult_aa.timeStamp)/86400;
+    let days = (lastResult.timestamp-firstResult.timestamp)/86400;
     if (days === 0){
       days = 1;
     }
 
-    let apr_aa = null;
-    let delta_aa = 'N/A';
+    let apr = null;
+    let delta = 'N/A';
 
-    let apr_bb = null;
-    let delta_bb = 'N/A';
+    const idleTokens = this.functionsUtil.fixTokenDecimals(lastResult.idleSupply,18);
+    const firstIdlePrice = this.functionsUtil.fixTokenDecimals(firstResult.idlePrice,this.props.tokenConfig.decimals);
+    const lastIdlePrice = this.functionsUtil.fixTokenDecimals(lastResult.idlePrice,this.props.tokenConfig.decimals);
 
-    const idleTokens_aa = this.functionsUtil.fixTokenDecimals(lastResult_aa.totalSupply,18);
-    const firstIdlePrice_aa = this.functionsUtil.fixTokenDecimals(firstResult_aa.virtualPrice,this.props.tokenConfig.decimals);
-    const lastIdlePrice_aa= this.functionsUtil.fixTokenDecimals(lastResult_aa.virtualPrice,this.props.tokenConfig.decimals);
+    // Calculate AUM
+    let aum = idleTokens.times(lastIdlePrice);
 
-    console.log("firstIdlePrice_aa",firstIdlePrice_aa)
-    console.log("lastIdlePrice_aa",lastIdlePrice_aa)
+    // Convert Token balance
+    aum = await this.functionsUtil.convertTokenBalance(aum,this.props.selectedToken,this.props.tokenConfig);
 
-    const idleTokens_bb = this.functionsUtil.fixTokenDecimals(lastResult_bb.totalSupply,18);
-    const firstIdlePrice_bb= this.functionsUtil.fixTokenDecimals(firstResult_bb.virtualPrice,this.props.tokenConfig.decimals);
-    const lastIdlePrice_bb = this.functionsUtil.fixTokenDecimals(lastResult_bb.virtualPrice,this.props.tokenConfig.decimals);
-
-    console.log("idleTokens_aa",idleTokens_aa)
-    console.log("idleTokens_bb",idleTokens_bb)
-    console.log("lastIdlePrice_aa",lastIdlePrice_aa)
-    console.log("lastIdlePrice_bb",lastIdlePrice_bb)
-
-     //Calculate AUM
-    let aum_aa = idleTokens_aa.times(lastIdlePrice_aa);
-    let aum_bb = idleTokens_bb.times(lastIdlePrice_bb);
-
-
-    console.log("aum_aa",aum_aa)
-    console.log("aum_bb",aum_bb)
-
-    /*// Convert Token balance
-    aum_aa = await this.functionsUtil.convertTokenBalance(aum_aa,this.props.selectedToken,this.props.tokenConfig);
-    aum_bb = await this.functionsUtil.convertTokenBalance(aum_bb,this.props.selectedToken,this.props.tokenConfig);*/
-
-    let aum=aum_aa.plus(aum_bb)
-
-    console.log("aum_aa",aum_aa)
-    console.log("aum_bb",aum_bb)
-    /*const compoundInfo = this.props.tokenConfig.protocols.filter((p) => { return p.name === 'compound' })[0];
+    const compoundInfo = this.props.tokenConfig.protocols.filter((p) => { return p.name === 'compound' })[0];
     const firstCompoundData = compoundInfo ? firstResult.protocolsData.filter((p) => { return p.protocolAddr.toLowerCase() === compoundInfo.address.toLowerCase() })[0] : null;
     const lastCompoundData = compoundInfo ? lastResult.protocolsData.filter((p) => { return p.protocolAddr.toLowerCase() === compoundInfo.address.toLowerCase() })[0] : null;
 
@@ -367,30 +328,27 @@ class StatsTranche extends Component {
       }
     });
 
-     */
     // Add gov tokens balance to AUM
     const availableTokens = {};
     availableTokens[this.props.selectedToken] = this.props.tokenConfig;
-    /*const govTokensPool = await this.functionsUtil.getGovTokenPool(null,availableTokens,'DAI');
+    const govTokensPool = await this.functionsUtil.getGovTokenPool(null,availableTokens,'DAI');
     if (govTokensPool){
-      aum_aa = aum_aa.plus(govTokensPool);
-      aum_bb = aum_bb.plus(govTokensPool);
+      aum = aum.plus(govTokensPool);
     }
-/*
+
     let unlentBalance = await this.functionsUtil.getUnlentBalance(this.props.tokenConfig);
     if (unlentBalance){
       unlentBalance = this.functionsUtil.formatMoney(parseFloat(unlentBalance));
     }
     */
     this.setStateSafe({
-      aum,
-      //apr_aa,
-      //apr_bb,
-      days,
-      delta_aa,
-      delta_bb,
+      // aum,
+      // apr,
+      // days,
+      // delta,
+      // apiResults,
       // rebalances,
-      //govTokensPool,
+      // govTokensPool,
       // unlentBalance,
       apiResults_aa,
       apiResults_bb,
@@ -634,9 +592,8 @@ render() {
                   >
                     <StatsCard
                         title={'Asset Under Management'}
-
-                        //label={ this.state.unlentBalance ? `Unlent funds: ${this.state.unlentBalance} ${this.props.selectedToken}` : this.props.selectedToken }
-                        //labelTooltip={ this.state.unlentBalance ? this.functionsUtil.getGlobalConfig(['messages','cheapRedeem']) : null}
+                        label={ this.state.unlentBalance ? `Unlent funds: ${this.state.unlentBalance} ${this.props.selectedToken}` : this.props.selectedToken }
+                        labelTooltip={ this.state.unlentBalance ? this.functionsUtil.getGlobalConfig(['messages','cheapRedeem']) : null}
                     >
                       <SmartNumber
                           precision={2}
@@ -650,7 +607,6 @@ render() {
                           }}
                           unit={this.functionsUtil.getGlobalConfig(['stats','tokens',this.props.selectedToken,'conversionRateField']) ? '$' : null}
                       />
-
                     </StatsCard>
                   </Flex>
                   {
@@ -782,7 +738,7 @@ render() {
                   width={1}
                   id={'chart-PRICE'}
                 >
-                  <TrancheChart
+                  <StatsChart
                     height={ 350 }
                     {...this.state}
                     parentId={'chart-PRICE'}
@@ -826,7 +782,7 @@ render() {
                             >
                                 Volume
                             </Heading.h4>
-                            <TrancheChart
+                            <StatsChart
                                 height={300}
                                 {...this.state}
                                 chartMode={'VOL_TRANCHE'}
@@ -873,7 +829,7 @@ render() {
                             >
                                 Asset Under Management
                             </Heading.h4>
-                            <TrancheChart
+                            <StatsChart
                                 height={300}
                                 {...this.state}
                                 chartMode={'AUM_TRANCHE'}
