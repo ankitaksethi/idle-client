@@ -1,4 +1,5 @@
 import moment from 'moment';
+import StatsChart from '../Stats/StatsChart';
 import React, { Component } from 'react';
 import Rebalance from '../Rebalance/Rebalance';
 import StatsCard from '../StatsCard/StatsCard';
@@ -14,8 +15,6 @@ import VariationNumber from '../VariationNumber/VariationNumber';
 import AllocationChart from '../AllocationChart/AllocationChart';
 import DateRangeModal from '../utilities/components/DateRangeModal';
 import { Flex, Text, Heading, Box, Icon } from 'rimble-ui';
-import TrancheChart from '../StatsTranche/TrancheChart';
-
 class StatsTranche extends Component {
 
   state = {
@@ -782,7 +781,7 @@ render() {
                   width={1}
                   id={'chart-PRICE'}
                 >
-                  <TrancheChart
+                  <StatsChart
                     height={ 350 }
                     {...this.state}
                     parentId={'chart-PRICE'}
@@ -826,7 +825,7 @@ render() {
                             >
                                 Volume
                             </Heading.h4>
-                            <TrancheChart
+                            <StatsChart
                                 height={300}
                                 {...this.state}
                                 chartMode={'VOL_TRANCHE'}
@@ -873,7 +872,7 @@ render() {
                             >
                                 Asset Under Management
                             </Heading.h4>
-                            <TrancheChart
+                            <StatsChart
                                 height={300}
                                 {...this.state}
                                 chartMode={'AUM_TRANCHE'}
