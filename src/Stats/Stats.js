@@ -16,7 +16,6 @@ import AssetsUnderManagement from '../AssetsUnderManagement/AssetsUnderManagemen
 import TranchesList from "../TranchesList/TranchesList";
 import StatsAsset from '../StatsAsset/StatsAsset';
 import StatsTranche from '../StatsTranche/StatsTranche';
-import TrancheChart from '../StatsTranche/TrancheChart';
 
 class Stats extends Component {
   state = {
