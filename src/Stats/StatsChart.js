@@ -29,9 +29,11 @@ class StatsChart extends Component {
 
   async componentDidUpdate(prevProps) {
     const showAdvancedChanged = prevProps.showAdvanced !== this.props.showAdvanced;
+    const apiResults_aa_Changed = prevProps.apiResults_aa !== this.props.apiResults_aa;
+    const apiResults_bb_Changed = prevProps.apiResults_bb !== this.props.apiResults_bb;
     const apiResultsChanged = prevProps.apiResults !== this.props.apiResults;
     const tokenChanged = prevProps.selectedToken !== this.props.selectedToken || JSON.stringify(prevProps.tokenConfig) !== JSON.stringify(this.props.tokenConfig);
-    if (apiResultsChanged || showAdvancedChanged || tokenChanged){
+    if (apiResultsChanged || showAdvancedChanged || tokenChanged||apiResults_aa_Changed||apiResults_bb_Changed){
       this.componentDidMount();
     }
   }
@@ -52,15 +54,21 @@ class StatsChart extends Component {
 
   loadApiData = async () => {
 
+<<<<<<< HEAD
     if (!this.props.tokenConfig || !this.props.selectedToken || !this.props.chartMode || !this.props.apiResults){
+=======
+    if (!this.props.tokenConfig || !this.props.selectedToken || !this.props.chartMode || (!this.props.apiResults&&!this.props.apiResults_aa)){
+>>>>>>> parent of 90e1e09 (Merge branch 'feature/T246-tranche-stats-using-subgraph' into feature/T246-tranche-stats-using-subgraph)
       return false;
     }
 
     const maxGridLines = 4;
     const tranchesConfig = this.functionsUtil.getGlobalConfig(['tranches']);
     const apiResults = this.props.apiResults;
+    const apiResults_aa=this.props.apiResults_aa;
+    const apiResults_bb=this.props.apiResults_bb;
     const apiResults_unfiltered = this.props.apiResults_unfiltered;
-    const totalItems = apiResults.length;
+    const totalItems = apiResults_aa ? apiResults_aa.length : apiResults.length;
     const protocols = Object.assign([],this.props.tokenConfig.protocols);
     // const compoundProtocol = this.props.tokenConfig.protocols.find( p => (p.name === 'compound'));
 
@@ -2271,7 +2279,7 @@ class StatsChart extends Component {
               }
             }
           });
-
+          
           chartData.push(chartRow);
         });
 
@@ -2737,7 +2745,10 @@ class StatsChart extends Component {
       default:
       break;
     }
+<<<<<<< HEAD
 
+=======
+>>>>>>> parent of 90e1e09 (Merge branch 'feature/T246-tranche-stats-using-subgraph' into feature/T246-tranche-stats-using-subgraph)
     this.setState({
       chartType,
       chartProps,
