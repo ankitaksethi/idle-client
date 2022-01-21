@@ -29,11 +29,9 @@ class StatsChart extends Component {
 
   async componentDidUpdate(prevProps) {
     const showAdvancedChanged = prevProps.showAdvanced !== this.props.showAdvanced;
-    const apiResults_aa_Changed = prevProps.apiResults_aa !== this.props.apiResults_aa;
-    const apiResults_bb_Changed = prevProps.apiResults_bb !== this.props.apiResults_bb;
     const apiResultsChanged = prevProps.apiResults !== this.props.apiResults;
     const tokenChanged = prevProps.selectedToken !== this.props.selectedToken || JSON.stringify(prevProps.tokenConfig) !== JSON.stringify(this.props.tokenConfig);
-    if (apiResultsChanged || showAdvancedChanged || tokenChanged||apiResults_aa_Changed||apiResults_bb_Changed){
+    if (apiResultsChanged || showAdvancedChanged || tokenChanged){
       this.componentDidMount();
     }
   }
@@ -53,20 +51,16 @@ class StatsChart extends Component {
   }
 
   loadApiData = async () => {
-    console.log("HERE",this.props.apiResults_aa)
 
-    if (!this.props.tokenConfig || !this.props.selectedToken || !this.props.chartMode || (!this.props.apiResults&&!this.props.apiResults_aa)){
-      console.log("Failed",this.props.tokenConfig,"TOKEN",this.props.selectedToken,"CHARTMODE",this.props.chartMode,this.props.apiResults,this.props.apiResults_aa)
+    if (!this.props.tokenConfig || !this.props.selectedToken || !this.props.chartMode || !this.props.apiResults){
       return false;
     }
-    console.log("Success",this.props.tokenConfig,"TOKEN",this.props.selectedToken,"CHARTMODE",this.props.chartMode,this.props.apiResults,this.props.apiResults_aa)
+
     const maxGridLines = 4;
     const tranchesConfig = this.functionsUtil.getGlobalConfig(['tranches']);
     const apiResults = this.props.apiResults;
-    const apiResults_aa=this.props.apiResults_aa;
-    const apiResults_bb=this.props.apiResults_bb;
     const apiResults_unfiltered = this.props.apiResults_unfiltered;
-    const totalItems = apiResults_aa ? apiResults_aa.length : apiResults.length;
+    const totalItems = apiResults.length;
     const protocols = Object.assign([],this.props.tokenConfig.protocols);
     // const compoundProtocol = this.props.tokenConfig.protocols.find( p => (p.name === 'compound'));
 
@@ -2277,7 +2271,7 @@ class StatsChart extends Component {
               }
             }
           });
-          
+
           chartData.push(chartRow);
         });
 
@@ -2287,7 +2281,6 @@ class StatsChart extends Component {
           gridYValues.push(i*gridYStep);
         }
 
-        console.log("ChartDAATA",idleChartData)
         chartData.push({
           id:'Idle',
           data: idleChartData,
@@ -2744,8 +2737,6 @@ class StatsChart extends Component {
       default:
       break;
     }
-
-    console.log(this.props.chartMode,chartProps,chartData);
 
     this.setState({
       chartType,

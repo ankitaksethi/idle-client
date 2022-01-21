@@ -258,10 +258,9 @@ class Dashboard extends Component {
       currentSection = params.section;
       const param1 = params.param1;
       const param2 = params.param2;
-      const param3 = params.param3;
 
       const section_is_strategy = Object.keys(this.props.availableStrategies).includes(currentSection.toLowerCase());
-      const param1_is_strategy = param1 && (Object.keys(this.props.availableStrategies).includes(param1.toLowerCase()) || param1==='tranches');
+      const param1_is_strategy = param1 && Object.keys(this.props.availableStrategies).includes(param1.toLowerCase());
 
       if (section_is_strategy || param1_is_strategy) {
 
@@ -271,11 +270,10 @@ class Dashboard extends Component {
 
         selectedStrategy = section_is_strategy ? currentSection : param1;
         currentRoute += '/' + selectedStrategy;
-        
+
         // Set token
-        const param1_is_token = param1==="tranches"?null:param1 && Object.keys(this.props.availableStrategies[selectedStrategy]).includes(param1.toUpperCase());
-        const param2_is_token = param1==="tranches"?null:param2 && Object.keys(this.props.availableStrategies[selectedStrategy]).includes(param2.toUpperCase());
-        
+        const param1_is_token = param1 && Object.keys(this.props.availableStrategies[selectedStrategy]).includes(param1.toUpperCase());
+        const param2_is_token = param2 && Object.keys(this.props.availableStrategies[selectedStrategy]).includes(param2.toUpperCase());
         if (param1_is_token || param2_is_token) {
           selectedToken = param1_is_token ? param1.toUpperCase() : param2.toUpperCase();
           currentRoute += '/' + selectedToken;
@@ -284,16 +282,7 @@ class Dashboard extends Component {
             pageComponent = AssetPage;
           }
         }
-        else if(param1==="tranches")
-        {
-          selectedToken=params.param3
-          currentRoute+='/'+param2+'/'+param3;
-
-        }
-        
-
-      }
-       else {
+      } else {
         currentRoute += '/' + params.section;
 
         if (params.param1 && params.param1.length) {
@@ -362,12 +351,7 @@ class Dashboard extends Component {
     }
 
     // console.log('loadParams',selectedStrategy,selectedToken);
-    if(selectedStrategy==="tranches" && currentSection==="stats") {
-      // console.log("Argss",selectedStrategy,selectedToken,params.param2)
-      await this.props.setStrategyToken(selectedStrategy,selectedToken,params.param2);
-    } else {
-      await this.props.setStrategyToken(selectedStrategy, selectedToken);
-    }
+    await this.props.setStrategyToken(selectedStrategy, selectedToken);
 
     // Send GA pageview
     this.functionsUtil.sendGoogleAnalyticsPageview(currentRoute);
@@ -685,35 +669,6 @@ class Dashboard extends Component {
     }
   }
 
-  changeProtocolToken(selectedProtocol, selectedToken) {
-    selectedProtocol = selectedProtocol.toLowerCase();
-    console.log(this.props.availableTranches)
-    console.log("P&T",selectedProtocol,selectedToken)
-    if (Object.keys(this.props.availableTranches).includes(selectedProtocol)&& Object.keys(this.props.availableTranches[selectedProtocol]).includes(selectedToken)) {
-    
-        const routeParts = [];
-
-        console.log("Section",this.state.currentSection)
-        console.log("Strategy",this.props.selectedStrategy)
-        // Add section
-        if (this.state.currentSection.toLowerCase() !== this.props.selectedStrategy.toLowerCase()) {
-          routeParts.push(this.state.currentSection);
-        }
-
-        // Add strategy
-        routeParts.push(this.props.selectedStrategy);
-
-        // Add protocol
-        routeParts.push(selectedProtocol);
-        
-        //Add Token
-        routeParts.push(selectedToken);
-
-        this.goToSection(routeParts.join('/'));
-      
-    }
-  }
-
   propagateClickEvent(clickEvent) {
     this.setState({
       clickEvent: clickEvent.target
@@ -994,7 +949,6 @@ class Dashboard extends Component {
                         match={{ params: {} }}
                         urlParams={this.state.params}
                         changeToken={this.changeToken.bind(this)}
-                        changeProtocolToken={this.changeProtocolToken.bind(this)}
                         goToSection={this.goToSection.bind(this)}
                         selectedSection={this.state.selectedSection}
                         selectedSubsection={this.state.selectedSubsection}
